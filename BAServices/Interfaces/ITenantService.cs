@@ -9,7 +9,8 @@ namespace BAServices.Interfaces
     public interface ITenantService
     {
         Task<int> Create(TenantVM TenantVM);
-        Task<List<TenantVM>> GetAll();
-        Task<TenantVM> GetTenant(int ID);
+        List<TenantVM> GetAll();
+        TenantVM GetTenant(int ID);
+        int Delete(int ID);
     }
 }

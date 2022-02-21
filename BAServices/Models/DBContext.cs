@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BAServices.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace VolantBackAlloction.Models
 {

@@ -17,15 +17,48 @@ namespace VolantBackAlloction.Controllers
             TenantData tenant = new TenantData();
             //Return Info 
             tenant.TenantModel = new TenantVM();
-
+            tenant.TenantList = _tenantService.GetAll();
             return View(tenant);
         }
 
-        public IActionResult Save(TenantVM model)
+        public JsonResult Save(TenantVM model)
         {
-            _tenantService.Create(model);
+            try
+            {
+                _tenantService.Create(model);
+                if (model.ID > 0)
+                {
+                    return Json("A New Tenant has been updated successfully");
+                }
+                else
+                {
+                    return Json("A New Tenant has been created successfully");
+                }
+               
+            }
+            catch (System.Exception ex)
+            {
 
-            return RedirectToAction("Index");
+                return Json("An Error Occured " + ex.Message);
+            }
+           
+          
+        }
+
+        public JsonResult Delete(int ID)
+        {
+            try
+            {
+                _tenantService.Delete(ID);                            
+               
+                    return Json("Tenant Deleted Successfully");              
+
+            }
+            catch (System.Exception ex)
+            {
+                return Json("An Error Occured " + ex.Message);
+            }
+
         }
     }
 }
