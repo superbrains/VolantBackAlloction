@@ -30,7 +30,7 @@ namespace BAServices.ViewModels.Facility
         public DateTime DateCreated { get; set; }
         public string Createdby { get; set; }
         public int OperatorID { get; set; }
-
-      //  public virtual Tenants Tenants { get; set; }
+        public string Operator { get; set; }
+        //  public virtual Tenants Tenants { get; set; }
     }
 }

@@ -54,7 +54,7 @@ namespace BAServices.Services
             return _mapper.Map<List<OperatorVM>>(opr);
 
         }
-        public OperatorVM GetTenant(int ID)
+        public OperatorVM GetOperator(int ID)
         {
             var temp = _context.Operators.FirstOrDefault(x => x.ID == ID);
             return _mapper.Map<OperatorVM>(temp);

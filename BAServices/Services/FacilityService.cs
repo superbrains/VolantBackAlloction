@@ -14,13 +14,15 @@ namespace BAServices.Services
     {
         private readonly DBContext _context;
         private readonly IMapper _mapper;
-        public FacilityService(DBContext context, IMapper mapper)
+        private readonly IOperatorService _operatorService;
+        public FacilityService(DBContext context, IMapper mapper, IOperatorService operatorService)
         {
             _context = context;
             _mapper = mapper;
+            _operatorService = operatorService;
 
         }
-        public async Task<int> Create(FacilityVM facilityVM)
+        public int Create(FacilityVM facilityVM)
         {
             try
             {
@@ -36,7 +38,7 @@ namespace BAServices.Services
                 }
 
 
-                return await _context.SaveChangesAsync();
+                return  _context.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -48,9 +50,16 @@ namespace BAServices.Services
         public List<FacilityVM> GetAll()
         {
             var facilities = _context.Facilities.ToList();
+           
 
-            return _mapper.Map<List<FacilityVM>>(facilities);
+          var mappedFacility = _mapper.Map<List<FacilityVM>>(facilities);
 
+            foreach (var item in mappedFacility)
+            {
+                item.Operator = _operatorService.GetOperator(item.OperatorID)?.BusinessName;   
+            }
+
+            return mappedFacility;
         }
         public FacilityVM GetFacility(int ID)
         {

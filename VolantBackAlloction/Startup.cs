@@ -34,6 +34,7 @@ namespace VolantBackAlloction
 
             services.AddScoped<ITenantService, TenantService>();
             services.AddScoped<IOperatorService, OperatorService>();
+            services.AddScoped<IFacility, FacilityService>();
 
             services.AddControllersWithViews();
         }

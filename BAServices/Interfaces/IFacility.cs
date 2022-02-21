@@ -8,7 +8,7 @@ namespace BAServices.Interfaces
 {
    public interface IFacility
     {
-        Task<int> Create(FacilityVM facilityVM);
+        int Create(FacilityVM facilityVM);
         List<FacilityVM> GetAll();
         FacilityVM GetFacility(int ID);
         int Delete(int ID);

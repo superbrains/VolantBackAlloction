@@ -10,7 +10,7 @@ namespace BAServices.Interfaces
     {
         Task<int> Create(OperatorVM operatorVM);
         List<OperatorVM> GetAll();
-        OperatorVM GetTenant(int ID);
+        OperatorVM GetOperator(int ID);
         int Delete(int ID);
     }
 }
