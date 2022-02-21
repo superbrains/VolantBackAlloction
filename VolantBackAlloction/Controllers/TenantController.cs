@@ -28,7 +28,7 @@ namespace VolantBackAlloction.Controllers
                 _tenantService.Create(model);
                 if (model.ID > 0)
                 {
-                    return Json("A New Tenant has been updated successfully");
+                    return Json("Tenant Information has been updated successfully");
                 }
                 else
                 {

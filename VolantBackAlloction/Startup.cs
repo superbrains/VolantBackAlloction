@@ -33,6 +33,7 @@ namespace VolantBackAlloction
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<ITenantService, TenantService>();
+            services.AddScoped<IOperatorService, OperatorService>();
 
             services.AddControllersWithViews();
         }
