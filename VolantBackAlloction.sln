@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolantBackAlloction", "VolantBackAlloction\VolantBackAlloction.csproj", "{005323BC-6368-45E9-AA3D-060F327ED8E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BAServices", "BAServices\BAServices.csproj", "{5DA62546-6494-4A04-9B75-A495D7B8245F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{005323BC-6368-45E9-AA3D-060F327ED8E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{005323BC-6368-45E9-AA3D-060F327ED8E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{005323BC-6368-45E9-AA3D-060F327ED8E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{005323BC-6368-45E9-AA3D-060F327ED8E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DA62546-6494-4A04-9B75-A495D7B8245F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DA62546-6494-4A04-9B75-A495D7B8245F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DA62546-6494-4A04-9B75-A495D7B8245F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DA62546-6494-4A04-9B75-A495D7B8245F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F0AE339F-3F65-4790-B5A8-24B47FA77699}
+	EndGlobalSection
+EndGlobal

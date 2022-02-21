@@ -1,0 +1,203 @@
+﻿@model VolantBackAlloction.ViewModels.Tenant.TenantData
+
+@{
+    ViewData["Title"] = "Tenant Setup";
+}
+
+<header class="page-header">
+    <h2>Tenant Setup</h2>
+
+    <div class="right-wrapper text-end">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="#">
+                    <i class="bx bx-home-alt"></i>
+                </a>
+            </li>
+
+            <li><span>Tenant</span></li>
+
+            <li><span>Setup</span></li>
+
+        </ol>
+
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col">
+        <section class="card">
+            <header class="card-header">
+                <div class="card-actions">
+                    <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
+                    <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
+                </div>
+                <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">New Tenant</button>
+            </header>
+            <div class="card-body">
+
+                <table class="table table-bordered table-striped mb-0" id="datatable-tabletools">
+
+                    <thead>
+                        <tr>
+                            @foreach (System.Reflection.PropertyInfo prop in Model.TenantModel.GetType().GetProperties())
+                            {
+
+                                <th>  @Html.DisplayName(prop.Name) </th>
+
+
+                            }
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+                        @if (Model.TenantList != null)
+                        {
+
+                            foreach (var item in Model.TenantList)
+                            {
+                                <tr>
+
+                                    <td>@item.ID</td>
+                                    <td>@item.BusinessName</td>
+                                    <td>@item.ContactName</td>
+                                    <td>@item.ContactMobile</td>
+                                    <td>@item.ContactEmail</td>
+                                    <td>@item.RCCNumber</td>
+                                    <td>@item.Address</td>
+                                    <td>@item.Logo</td>
+                                    <td>@item.Logo</td>
+                                    <td><span class="label-custom label label-default">@item.Status</span></td>
+
+                                </tr>
+
+
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+</div>
+
+<!-- Trigger the modal with a button -->
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 style="float:left" class="modal-title">Tenant Setup</h4>
+            </div>
+
+            <div class="modal-body">
+                <form id="formdata">
+
+
+                    <div class="row form-group pb-3">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="col-form-label" for="formGroupExampleInput">Business Name</label>
+                             
+                                <input type="text" class="form-control" id="BusinessName" placeholder="" name="BusinessName">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="col-form-label" for="formGroupExampleInput">Contact Name</label>
+                                <input type="text" class="form-control" id="ContactName" placeholder="" name="ContactName">
+
+
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label class="col-form-label" for="formGroupExampleInput">Phone Number</label>
+                                <input type="text" class="form-control" id="ContactMobile" placeholder="" name="ContactMobile">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-group pb-3">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="col-form-label" for="formGroupExampleInput">Email</label>
+                                <input type="text" class="form-control" id="ContactEmail" placeholder="" name="ContactEmail">
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label class="col-form-label" for="formGroupExampleInput">RCC Number</label>
+                                <input type="text" class="form-control" id="RCCNumber" placeholder="" name="RCCNumber">
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row form-group pb-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="col-form-label" for="formGroupExampleInput">Address</label>
+                            
+                                <input type="text" class="form-control" id="Address" placeholder="" name="Address">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row form-group pb-3">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label class="col-form-label" for="formGroupExampleInput">Choose Logo</label>
+                                <input type="file" class="form-control" id="formGroupExampleInput" placeholder="" name="Logo">
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="Save()">Save Tenant Information</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@section scripts{
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      
+    });
+    function ShowNewForm(){
+        $("#myModal").modal('show');
+    }
+
+    function Save() {
+      
+        var data = $("#formdata").serialize();
+      
+        $.ajax({
+            url: "/Tenant/Save",
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            data: data,
+            success: function (data) {
+                alert(data)
+                return data;
+            }
+        });
+    }
+
+</script>
+}

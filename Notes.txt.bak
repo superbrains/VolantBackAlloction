@@ -1,0 +1,58 @@
+Setup Allocation
+Select Allocation Method:
+-Well Test
+-Factor
+-Look Up
+
+Back Allocation
+-- Control Columns (Readings, allocted, Reconciled)
+
+Allocation Levels (Facility, Field, Company)
+-Daily
+-Weekly etc
+-Monthly 
+-User selected duration
+
+Reconciliation
+
+Reconciliation Levels (Facility, Field, Company)
+-Daily
+-Weekly etc
+-Monthly 
+-User selected duration
+
+
+
+LACT Unit (Facility or Field Levels) Where you have Lact units, respect the figure on the LACT
+
+
+well test... (Be able to flag the Well test to use or use latest by default)
+
+
+Deferment ... 
+-Facility
+-Well
+
+
+alloction is from Point of Measuremnet
+	- Well String 
+	- Reservoir Target or Zone)
+	- Field
+	- Facility
+	- Company
+	- Head Node
+	
+Reconciliation is from Point of Sale
+	- Well String 
+	- Reservoir Target or Zone)
+	- Field
+	- Facility
+	- Company
+	- Head Node (Volume)
+	
+	
+Menu Text should be white and bolder...
+	
+REPORTS..  
+Standard Reports
+Odata connect to EXCEL
