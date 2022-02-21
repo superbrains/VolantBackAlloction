@@ -15,6 +15,7 @@ namespace BAServices
         {
             CreateMap<TenantVM,Tenants >().ReverseMap();
             CreateMap<OperatorVM, Operators>().ReverseMap();
+          
         }
     }
 }
