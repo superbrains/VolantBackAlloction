@@ -2,259 +2,678 @@
 @{
     ViewData["Title"] = "Index";
 }
+<link rel="stylesheet" href="~/assets/css/style.css" />
+<style type="text/css">
+    /* CSS for the traditional context menu */
+    .menu {
+        display: none;
+        position: absolute;
+        opacity: 0;
+        margin: 0;
+        padding: 8px 0;
+        z-index: 999;
+        box-shadow: 0 5px 5px -3px rgba(0, 0, 0, .2), 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12);
+        list-style: none;
+        background-color: #ffffff;
+        border-radius: 4px;
+    }
 
+    .menu-item {
+        display: block;
+        position: relative;
+        min-width: 60px;
+        margin: 0;
+        padding: 6px 16px;
+        font: bold 12px sans-serif;
+        color: rgba(0, 0, 0, .87);
+        cursor: pointer;
+    }
 
+        .menu-item::before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            pointer-events: none;
+            content: "";
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+        }
+
+        .menu-item:hover::before {
+            opacity: .04;
+        }
+
+    .menu .menu {
+        top: -8px;
+        left: 100%;
+    }
+
+    .show-menu, .menu-item:hover > .menu {
+        display: block;
+        opacity: 1;
+    }
+</style>
 <header class="page-header">
-						<h2>Asset Diagram</h2>
+    <h2>Asset Diagram</h2>
 
-						<div class="right-wrapper text-end">
-							<ol class="breadcrumbs">
-								<li>
-									<a href="index.html">
-										<i class="bx bx-home-alt"></i>
-									</a>
-								</li>
+    <div class="right-wrapper text-end">
+        <ol class="breadcrumbs">
+            <li>
+                <a href="index.html">
+                    <i class="bx bx-home-alt"></i>
+                </a>
+            </li>
 
-								<li><span>Asset</span></li>
+            <li><span>Asset</span></li>
 
-								<li><span>Diagram</span></li>
+            <li><span>Diagram</span></li>
 
-							</ol>
+        </ol>
 
-							<a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
-						</div>
-					</header>
+        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+    </div>
+</header>
 
-<div class="row">
-							<div class="col">
-								<div id="myholder" style="width:100%"></div>
+<div class="row" style="background-color:white">
+    <div class="col" style="background-color:white">
+        <div id="sample" style="background-color:white">
+            <div style="width: 100%; display: flex; justify-content: space-between">
+                <div style="display: flex; flex-direction: column; margin-right: 2px">
+                    <div id="myPaletteDiv" style="flex-grow: 1; width: 100px; background-color: white; border: solid 1px black"></div>
+                    <div id="myOverviewDiv" style="margin-top: 2px; width: 100px; height: 100px; background-color: white; border: solid 1px black"></div>
+                </div>
+                <div id="myDiagramDiv" style="flex-grow: 1; height: 400px; border: solid 1px black"></div>
+            </div>
+            <div id="buttons">
+                <button id="loadModel" onclick="load()">Load</button>
+                <button id="saveModel" onclick="save()">Save</button>
+            
+            </div>
+            <textarea id="mySavedModel" style="width:100%;height:300px">
+{ "class": "go.GraphLinksModel",
+  "nodeDataArray": [
 
-							</div>
-						</div>
+ ]}
+  </textarea>
+        </div>
 
-						
-@section scripts{ 
-  
-    <script type="text/javascript">
-        var namespace = joint.shapes;
+    </div>
 
-        var graph = new joint.dia.Graph({}, { cellNamespace: namespace });
+    <div style="display: inline-block;">
+        <!-- We make a div to contain both the Diagram div and the context menu (such that they are siblings)
+             so that absolute positioning works easily.
+             This DIV containing both MUST have a non-static CSS position (we use position: relative)
+             so that our context menu's absolute coordinates work correctly. -->
+        <div style="position: relative;">
+            <div id="myDiagramDiv" style="border: 1px solid black; width: 400px; height: 600px; position: relative; -webkit-tap-highlight-color: rgba(255, 255, 255, 0);"><canvas tabindex="0" width="398" height="398" style="position: absolute; top: 0px; left: 0px; z-index: 2; user-select: none; touch-action: none; width: 398px; height: 398px;">This text is displayed if your browser does not support the Canvas HTML element.</canvas><div style="position: absolute; overflow: auto; width: 398px; height: 398px; z-index: 1;"><div style="position: absolute; width: 1px; height: 1px;"></div></div></div>
+            <ul id="contextMenu" class="menu" style="left: 243.5px; top: 162px;">
+                <li id="cut" class="menu-item" onpointerdown="cxcommand(event)" style="display: block;">Cut</li>
+                <li id="copy" class="menu-item" onpointerdown="cxcommand(event)" style="display: block;">Copy</li>
+                <li id="paste" class="menu-item" onpointerdown="cxcommand(event)" style="display: none;">Paste</li>
+                <li id="delete" class="menu-item" onpointerdown="cxcommand(event)" style="display: block;">Delete</li>
+                <li id="color" class="menu-item" style="display: block;">
+                    Color
+                    <ul class="menu">
+                        <li class="menu-item" style="background-color: #f38181;" onpointerdown="cxcommand(event, 'color')">Red</li>
+                        <li class="menu-item" style="background-color: #eaffd0;" onpointerdown="cxcommand(event, 'color')">Green</li>
+                        <li class="menu-item" style="background-color: #95e1d3;" onpointerdown="cxcommand(event, 'color')">Blue</li>
+                        <li class="menu-item" style="background-color: #fce38a;" onpointerdown="cxcommand(event, 'color')">Yellow</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        </div>
+    </div>
 
-        var paper = new joint.dia.Paper({
-            el: document.getElementById('myholder'),
-            model: graph,
-            width: 1200,
-            height: 1000, // height had to be increased
-            gridSize: 1,
-            //drawGrid: true,
-            //background: {
-            //    color: 'rgba(0, 255, 0, 0.3)'
-            //},
-            cellViewNamespace: namespace
-        });
 
-        var rect = new joint.shapes.standard.Rectangle();
-        rect.position(100, 30);
-        rect.resize(100, 40);
-        rect.attr({
-            body: {
-                fill: 'blue'
-            },
-            label: {
-                text: 'Hello',
-                fill: 'white'
+    @section scripts{
+
+        <script src="~/release/go.js"></script>
+
+        <script src="~/extensions/Figures.js"></script>
+        <script id="code">
+            var myDiagram = null;
+            function init() {
+
+                // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
+                // For details, see https://gojs.net/latest/intro/buildingObjects.html
+                const $ = go.GraphObject.make;
+
+                myDiagram =
+                    $(go.Diagram, "myDiagramDiv",
+                        {
+                            /* "linkingTool.direction": go.LinkingTool.ForwardsOnly,*/
+                            "undoManager.isEnabled": true
+                        });
+
+                var cxElement = document.getElementById("contextMenu");
+
+                // an HTMLInfo object is needed to invoke the code to set up the HTML cxElement
+                var myContextMenu = $(go.HTMLInfo, {
+                    show: showContextMenu,
+                    hide: hideContextMenu
+                });
+
+                // when the document is modified, add a "*" to the title and enable the "Save" button
+                myDiagram.addDiagramListener("Modified", e => {
+                    var button = document.getElementById("saveModel");
+                    if (button) button.disabled = !myDiagram.isModified;
+                    var idx = document.title.indexOf("*");
+                    if (myDiagram.isModified) {
+                        if (idx < 0) document.title += "*";
+                    } else {
+                        if (idx >= 0) document.title = document.title.substr(0, idx);
+                    }
+                });
+
+                myDiagram.nodeTemplateMap.add("Generator",
+                    $(go.Node, "Spot",
+                        { locationSpot: go.Spot.Center, resizable: true, contextMenu: myContextMenu },
+                        new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
+                        $(go.Shape, "ACVoltageSource",
+                            {
+                                name: "BODY", stroke: "white", strokeWidth: 3, fill: "transparent", background: "darkblue",
+                                width: 40, height: 40, margin: 5,
+                                portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer", fromSpot: go.Spot.TopBottomSides, toSpot: go.Spot.TopBottomSides
+                            }),
+                        $(go.TextBlock,
+                            { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left, editable: true },
+                            new go.Binding("text").makeTwoWay())
+                    ));
+
+
+                myDiagram.nodeTemplateMap.add("Facility",
+                    $(go.Node, "Spot",
+                        {
+                            locationSpot: go.Spot.Center, resizable: true, contextMenu: myContextMenu
+
+                        },
+                        new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
+                        $(go.Picture, "images/facility.jpg",
+                            {
+                                name: "BODY", width: 50, height: 40, margin: 2,
+                                portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"
+                            }),
+                        $(go.TextBlock,
+                            { alignment: go.Spot.Bottom, margin: 12, alignmentFocus: go.Spot.Bottom, editable: true },
+                            new go.Binding("text").makeTwoWay())
+                    ));
+
+                myDiagram.nodeTemplateMap.add("OilWell",
+                    $(go.Node, "Spot",
+                        {
+                            locationSpot: go.Spot.Center, resizable: true, contextMenu: myContextMenu
+
+                        },
+                        new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
+                        $(go.Picture, "images/OilWell.png",
+                            {
+                                name: "BODY", width: 30, height: 30, margin: 10,
+                                portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"
+                            }),
+                        $(go.TextBlock,
+                            { alignment: go.Spot.Bottom, margin: 12, alignmentFocus: go.Spot.Bottom, editable: true },
+                            new go.Binding("text").makeTwoWay())
+                    ));
+
+                myDiagram.nodeTemplateMap.add("GasWell",
+                    $(go.Node, "Spot",
+                        {
+                            locationSpot: go.Spot.Center, resizable: true, contextMenu: myContextMenu
+
+                        },
+                        new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
+                        $(go.Picture, "images/GasWell.jpg",
+                            {
+                                name: "BODY", width: 30, height: 30, margin: 10,
+                                portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"
+                            }),
+                        $(go.TextBlock,
+                            { alignment: go.Spot.Bottom, margin: 12, alignmentFocus: go.Spot.Bottom, editable: true },
+                            new go.Binding("text").makeTwoWay())
+                    ));
+                myDiagram.nodeTemplateMap.add("CondensateWell",
+                    $(go.Node, "Spot",
+                        {
+                            locationSpot: go.Spot.Center, resizable: true, contextMenu: myContextMenu
+
+                        },
+                        new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
+                        $(go.Picture, "images/CondensateWell.jpg",
+                            {
+                                name: "BODY", width: 30, height: 30, margin: 10,
+                                portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"
+                            }),
+                        $(go.TextBlock,
+                            { alignment: go.Spot.Bottom, margin: 12, alignmentFocus: go.Spot.Bottom, editable: true },
+                            new go.Binding("text").makeTwoWay())
+                    ));
+                myDiagram.nodeTemplateMap.add("OilandGasWell",
+                    $(go.Node, "Spot",
+                        {
+                            locationSpot: go.Spot.Center, resizable: true, contextMenu: myContextMenu
+
+                        },
+                        new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
+                        $(go.Picture, "images/OilandGasWell.png",
+                            {
+                                name: "BODY", width: 30, height: 30, margin: 10,
+                                portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"
+                            }),
+                        $(go.TextBlock,
+                            { alignment: go.Spot.Bottom, margin: 12, alignmentFocus: go.Spot.Bottom, editable: true },
+                            new go.Binding("text").makeTwoWay())
+                    ));
+                myDiagram.nodeTemplateMap.add("DualCompletion",
+                    $(go.Node, "Spot",
+                        {
+                            locationSpot: go.Spot.Center, resizable: true, contextMenu: myContextMenu
+
+                        },
+                        new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
+                        $(go.Picture, "images/DualCompletion.jpg",
+                            {
+                                name: "BODY", width: 30, height: 30, margin: 10,
+                                portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"
+                            }),
+                        $(go.TextBlock,
+                            { alignment: go.Spot.Bottom, margin: 12, alignmentFocus: go.Spot.Bottom, editable: true },
+                            new go.Binding("text").makeTwoWay())
+                    ));
+                myDiagram.nodeTemplateMap.add("Normal Meter",
+                    $(go.Node, "Spot",
+                        {
+                            locationSpot: go.Spot.Center, resizable: true, contextMenu: myContextMenu
+
+                        },
+                        new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
+                        $(go.Picture, "images/NormalMeter.jpg",
+                            {
+                                name: "BODY", width: 30, height: 30, margin: 10,
+                                portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"
+                            }),
+                        $(go.TextBlock,
+                            { alignment: go.Spot.Bottom, margin: 12, alignmentFocus: go.Spot.Bottom, editable: true },
+                            new go.Binding("text").makeTwoWay())
+                    ));
+
+                myDiagram.nodeTemplateMap.add("PD Meter",
+                    $(go.Node, "Spot",
+                        {
+                            locationSpot: go.Spot.Center, resizable: true, contextMenu: myContextMenu
+
+                        },
+                        new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
+                        $(go.Picture, "images/PDMeter.png",
+                            {
+                                name: "BODY", width: 50, height: 50, margin: 10,
+                                portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"
+                            }),
+                        $(go.TextBlock,
+                            { alignment: go.Spot.Bottom, margin: 12, alignmentFocus: go.Spot.Bottom, editable: true },
+                            new go.Binding("text").makeTwoWay())
+                    ));
+
+                myDiagram.nodeTemplateMap.add("Fiscal Meter",
+                    $(go.Node, "Spot",
+                        {
+                            locationSpot: go.Spot.Center, resizable: true, contextMenu: myContextMenu
+
+                        },
+                        new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
+                        $(go.Picture, "images/Fiscal.jpg",
+                            {
+                                name: "BODY", width: 60, height: 60, margin: 10,
+                                portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"
+                            }),
+                        $(go.TextBlock,
+                            { alignment: go.Spot.Bottom, margin: 12, alignmentFocus: go.Spot.Bottom, editable: true },
+                            new go.Binding("text").makeTwoWay())
+                    ));
+
+                myDiagram.nodeTemplateMap.add("POS",
+                    $(go.Node, "Spot",
+                        {
+                            locationSpot: go.Spot.Center, resizable: true, contextMenu: myContextMenu
+
+                        },
+                        new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
+                        $(go.Picture, "images/POS.png",
+                            {
+                                name: "BODY", width: 60, height: 60, margin: 10,
+                                portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"
+                            }),
+                        $(go.TextBlock,
+                            { alignment: go.Spot.Bottom, margin: 12, alignmentFocus: go.Spot.Bottom, editable: true },
+                            new go.Binding("text").makeTwoWay())
+                    ));
+
+                myDiagram.nodeTemplateMap.add("HBar",
+                    $(go.Node, "Spot",
+                        new go.Binding("location", "location", go.Point.parse).makeTwoWay(go.Point.stringify),
+                        {
+                            layerName: "Background",
+                            // special resizing: just at the ends
+                            resizable: true, resizeObjectName: "SHAPE",
+                            resizeAdornmentTemplate:
+                                $(go.Adornment, "Spot",
+                                    $(go.Placeholder),
+                                    $(go.Shape,  // left resize handle
+                                        {
+                                            alignment: go.Spot.Left, cursor: "col-resize",
+                                            desiredSize: new go.Size(6, 6), fill: "lightblue", stroke: "dodgerblue"
+                                        }),
+                                    $(go.Shape,  // right resize handle
+                                        {
+                                            alignment: go.Spot.Right, cursor: "col-resize",
+                                            desiredSize: new go.Size(6, 6), fill: "lightblue", stroke: "dodgerblue"
+                                        }))
+                        },
+                        $(go.Shape, "Rectangle",
+                            {
+                                name: "SHAPE",
+                                fill: "black", stroke: null, strokeWidth: 0,
+                                width: 1000, height: 4,
+                                minSize: new go.Size(100, 4),
+                                maxSize: new go.Size(Infinity, 4)
+                            },
+                            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+                            new go.Binding("fill"),
+                            { portId: "", toLinkable: true }),
+                        $(go.TextBlock,
+                            { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left, editable: true },
+                            new go.Binding("text").makeTwoWay())
+                    ));
+
+                myDiagram.linkTemplate =
+                    $(BarLink,  // subclass defined below
+                        {
+                            routing: go.Link.Orthogonal,
+                            relinkableFrom: true, relinkableTo: true,
+                            toPortChanged: (link, oldport, newport) => {
+                                if (newport instanceof go.Shape) link.path.stroke = newport.fill;
+                            }
+                        },
+                        $(go.Shape,
+                            { strokeWidth: 2 })
+                    );
+                myDiagram.contextMenu = myContextMenu;
+
+                // We don't want the div acting as a context menu to have a (browser) context menu!
+                cxElement.addEventListener("contextmenu", e => {
+                    e.preventDefault();
+                    return false;
+                }, false);
+
+                function hideCX() {
+                    if (myDiagram.currentTool instanceof go.ContextMenuTool) {
+                        myDiagram.currentTool.doCancel();
+                    }
+                }
+
+                function showContextMenu(obj, diagram, tool) {
+                    // Show only the relevant buttons given the current state.
+                    var cmd = diagram.commandHandler;
+                    var hasMenuItem = false;
+                    function maybeShowItem(elt, pred) {
+                        if (pred) {
+                            elt.style.display = "block";
+                            hasMenuItem = true;
+                        } else {
+                            elt.style.display = "none";
+                        }
+                    }
+                    maybeShowItem(document.getElementById("cut"), cmd.canCutSelection());
+                    maybeShowItem(document.getElementById("copy"), cmd.canCopySelection());
+                    maybeShowItem(document.getElementById("paste"), cmd.canPasteSelection(diagram.toolManager.contextMenuTool.mouseDownPoint));
+                    maybeShowItem(document.getElementById("delete"), cmd.canDeleteSelection());
+                    maybeShowItem(document.getElementById("color"), obj !== null);
+
+                    // Now show the whole context menu element
+                    if (hasMenuItem) {
+                        cxElement.classList.add("show-menu");
+                        // we don't bother overriding positionContextMenu, we just do it here:
+                        var mousePt = diagram.lastInput.viewPoint;
+                        cxElement.style.left = mousePt.x + 5 + "px";
+                        cxElement.style.top = mousePt.y + "px";
+                    }
+
+                    // Optional: Use a `window` pointerdown listener with event capture to
+                    //           remove the context menu if the user clicks elsewhere on the page
+                    window.addEventListener("pointerdown", hideCX, true);
+                }
+
+                function hideContextMenu() {
+                    cxElement.classList.remove("show-menu");
+                    // Optional: Use a `window` pointerdown listener with event capture to
+                    //           remove the context menu if the user clicks elsewhere on the page
+                    window.removeEventListener("pointerdown", hideCX, true);
+                }
+                // start off with a simple diagram
+                load();
+
+                // initialize Palette
+                myPalette =
+                    $(go.Palette, "myPaletteDiv",
+                        {
+                            nodeTemplateMap: myDiagram.nodeTemplateMap,
+                            layout:
+                                $(go.GridLayout,
+                                    {
+                                        cellSize: new go.Size(2, 2),
+                                        isViewportSized: true
+                                    })
+                        }
+                    );
+
+                myPalette.model.nodeDataArray = [
+                    { "text": "Generator", "category": "Generator" },
+                    { "text": "Pipeline", "category": "HBar", "size": "100 4" },
+                    { "text": "Facility", "category": "Facility" },
+                    { "text": "OilWell", "category": "OilWell" },
+                    { "text": "GasWell", "category": "GasWell" },
+                    { "text": "CondensateWell", "category": "CondensateWell" },
+                    { "text": "OilandGasWell", "category": "OilandGasWell" },
+                    { "text": "DualCompletion", "category": "DualCompletion" },
+                    { "text": "Normal Meter", "category": "Normal Meter" },
+                    { "text": "PD Meter", "category": "PD Meter" },
+                    { "text": "Fiscal Meter", "category": "Fiscal Meter" },
+                    { "text": "POS", "category": "POS" },
+
+
+                ];
+
+                // remove cursors on all ports in the Palette
+                // make TextBlocks invisible, to reduce size of Nodes
+                myPalette.nodes.each(node => {
+                    node.ports.each(port => port.cursor = "");
+                    node.elements.each(tb => {
+                        if (tb instanceof go.TextBlock) tb.visible = false;
+                    });
+                });
+
+                // initialize Overview
+                myOverview =
+                    $(go.Overview, "myOverviewDiv",
+                        {
+                            observed: myDiagram,
+                            contentAlignment: go.Spot.Center
+                        });
             }
-        });
-        rect.addTo(graph);
 
-        var rect2 = new joint.shapes.standard.Rectangle();
-        rect2.position(400, 30);
-        rect2.resize(100, 40);
-        rect2.attr({
-            body: {
-                fill: '#2C3E50',
-                rx: 5,
-                ry: 5,
-                strokeWidth: 2
-            },
-            label: {
-                text: 'World!',
-                fill: '#3498DB',
-                fontSize: 18,
-                fontWeight: 'bold',
-                fontVariant: 'small-caps'
-            }
-        });
-        rect2.addTo(graph);
 
-        var link = new joint.shapes.standard.Link();
-        link.source(rect);
-        link.target(rect2);
-        link.attr({
-            line: {
-                stroke: 'blue',
-                strokeWidth: 1,
-                sourceMarker: {
-                    'type': 'path',
-                    'stroke': 'black',
-                    'fill': 'red',
-                    'd': 'M 10 -5 0 0 10 5 Z'
-                },
-                targetMarker: {
-                    'type': 'path',
-                    'stroke': 'black',
-                    'fill': 'yellow',
-                    'd': 'M 10 -5 0 0 10 5 Z'
+            // A custom Link class that routes directly to the closest horizontal point of an "HBar" node.
+            // If the regular node is too far to the left or right of the "HBar" node, the link connects
+            // with the closest end of the "HBar" node.
+            class BarLink extends go.Link {
+                computeSpot(from, port) {
+                    if (from && this.toNode && this.toNode.category === "HBar") return go.Spot.TopBottomSides;
+                    if (!from && this.fromNode && this.fromNode.category === "HBar") return go.Spot.TopBottomSides;
+                    return super.computeSpot(from, port);
+                }
+
+                getLinkPoint(node, port, spot, from, ortho, othernode, otherport) {
+                    if (!from && node.category === "HBar") {
+                        var op = super.getLinkPoint(othernode, otherport, this.computeSpot(!from), !from, ortho, node, port);
+                        var r = port.getDocumentBounds();
+                        var y = (op.y > r.centerY) ? r.bottom : r.top;
+                        if (op.x < r.left) return new go.Point(r.left, y);
+                        if (op.x > r.right) return new go.Point(r.right, y);
+                        return new go.Point(op.x, y);
+                    } else {
+                        return super.getLinkPoint(node, port, spot, from, ortho, othernode, otherport);
+                    }
+                };
+
+                getLinkDirection(node, port, linkpoint, spot, from, ortho, othernode, otherport) {
+                    if (node.category === "HBar" || othernode.category === "HBar") {
+                        var p = port.getDocumentPoint(go.Spot.Center);
+                        var op = otherport.getDocumentPoint(go.Spot.Center);
+                        var below = op.y > p.y;
+                        return below ? 90 : 270;
+                    } else {
+                        return super.getLinkDirection(node, port, linkpoint, spot, from, ortho, othernode, otherport);
+                    }
                 }
             }
-        });
-        link.labels([{
-            attrs: {
-                text: {
-                    text: 'Hello, World!'
+            // end BarLink class
+            function saveData() {
+                var assetString = JSON.stringify(document.getElementById("mySavedModel").value);
+             
+                $.ajax({
+                    url: "/Asset/Save",
+                    type: "POST",
+                    // dataType: 'json',
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    data: { assetString: assetString },
+                    success: function (response) {
+                        // $("#myModal").modal('hide');
+                        Swal.fire({
+                            title: 'Request Successful',
+                            text: response,
+                            icon: 'success',
+                            //showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            // cancelButtonColor: '#d33',
+                            confirmButtonText: 'OK!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // location.reload();
+                            }
+                        })
+
+                    }
+                });
+            }
+
+            // save a model to and load a model from JSON text, displayed below the Diagram
+            function save() {
+                myDiagram.isModified = true;
+                document.getElementById("mySavedModel").value = myDiagram.model.toJson();
+
+                var assetString = myDiagram.model.toJson();
+                myDiagram.isModified = false;
+
+                $.ajax({
+                    url: "/Asset/Save",
+                    type: "POST",
+                   // dataType: 'json',
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    data: {assetString: assetString},
+                    success: function (response) {
+
+                        if (response != 'success') {
+                            Swal.fire({
+                                title: 'Asset Configuration Error',
+                                text: response,
+                                icon: 'error',
+                                //showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                // cancelButtonColor: '#d33',
+                                confirmButtonText: 'OK!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // location.reload();
+                                }
+                            })
+
+                        } else {
+                            Swal.fire({
+                                title: 'Request Successful',
+                                text: response,
+                                icon: 'success',
+                                //showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                // cancelButtonColor: '#d33',
+                                confirmButtonText: 'OK!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // location.reload();
+                                }
+                            })
+                        }
+
+                       
+
+                    }
+                });
+
+             
+            }
+            function load() {
+                myDiagram.model = go.Model.fromJson(document.getElementById("mySavedModel").value);
+            }
+
+            // This is the general menu command handler, parameterized by the name of the command.
+            function cxcommand(event, val) {
+                if (val === undefined) val = event.currentTarget.id;
+                var diagram = myDiagram;
+                switch (val) {
+                    case "cut": diagram.commandHandler.cutSelection(); break;
+                    case "copy": diagram.commandHandler.copySelection(); break;
+                    case "paste": diagram.commandHandler.pasteSelection(diagram.toolManager.contextMenuTool.mouseDownPoint); break;
+                    case "delete": diagram.commandHandler.deleteSelection(); break;
+                    case "color": {
+                        var color = window.getComputedStyle(event.target)['background-color'];
+                        changeColor(diagram, color); break;
+                    }
                 }
+                diagram.currentTool.stopTool();
             }
-        }]);
-        link.addTo(graph);
 
-        var rect3 = new joint.shapes.standard.Rectangle();
-        rect3.position(100, 130);
-        rect3.resize(100, 40);
-        rect3.attr({
-            body: {
-                fill: '#E74C3C',
-                rx: 20,
-                ry: 20,
-                strokeWidth: 0
-            },
-            label: {
-                text: 'Hello',
-                fill: '#ECF0F1',
-                fontSize: 11,
-                fontVariant: 'small-caps'
+            // A custom command, for changing the color of the selected node(s).
+            function changeColor(diagram, color) {
+                // Always make changes in a transaction, except when initializing the diagram.
+                diagram.startTransaction("change color");
+                diagram.selection.each(node => {
+                    if (node instanceof go.Node) {  // ignore any selected Links and simple Parts
+                        // Examine and modify the data, not the Node directly.
+                        var data = node.data;
+                        // Call setDataProperty to support undo/redo as well as
+                        // automatically evaluating any relevant bindings.
+                        diagram.model.setDataProperty(data, "color", color);
+                    }
+                });
+                diagram.commitTransaction("change color");
             }
-        });
-        rect3.addTo(graph);
 
-        var rect4 = new joint.shapes.standard.Rectangle();
-        rect4.position(400, 130);
-        rect4.resize(100, 40);
-        rect4.attr({
-            body: {
-                fill: '#8E44AD',
-                strokeWidth: 0
-            },
-            label: {
-                text: 'World!',
-                fill: 'white',
-                fontSize: 13
-            }
-        });
-        rect4.addTo(graph);
 
-        var link2 = new joint.shapes.standard.Link();
-        link2.source(rect3);
-        link2.target(rect4);
-        link2.vertices([
-            new g.Point(250, 100),
-            new g.Point(300, 150),
-            new g.Point(350, 200)
-        ]);
-        link2.router('orthogonal');
-        link2.connector('rounded');
-        link2.attr({
-            line: {
-                stroke: 'gray',
-                strokeWidth: 4,
-                strokeDasharray: '4 2',
-                sourceMarker: {
-                    'type': 'image',
-                    'xlink:href': 'http://cdn3.iconfinder.com/data/icons/49handdrawing/24x24/left.png',
-                    'width': 24,
-                    'height': 24,
-                    'y': -12
-                },
-                targetMarker: {
-                    'type': 'image',
-                    'xlink:href': 'http://cdn3.iconfinder.com/data/icons/49handdrawing/24x24/left.png',
-                    'width': 24,
-                    'height': 24,
-                    'y': -12
-                }
-            }
-        });
-        link2.addTo(graph);
+            $(document).ready(function () {
+                $.ajax({
+                    url: "/Asset/Load",
+                    type: "POST",
+                    // dataType: 'json',
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    data: { tenantId: 1 },
+                    success: function (response) {
+                        myDiagram.model = go.Model.fromJson(response);
+                    }
+                });
+            });
 
-        var link3 = new joint.shapes.standard.Link();
-        link3.source(rect3);
-        link3.target(rect4);
-        link3.connector('jumpover', { size: 10 });
-        link3.addTo(graph);
-
-        var rect5 = new joint.shapes.standard.Rectangle();
-        rect5.position(100, 230);
-        rect5.resize(100, 40);
-        rect5.attr({
-            body: {
-                fill: '#2ECC71',
-                strokeDasharray: '10,2'
-            },
-            label: {
-                text: 'Hello',
-                fill: 'black',
-                fontSize: 13
-            }
-        });
-        rect5.addTo(graph);
-
-        var rect6 = new joint.shapes.standard.Rectangle();
-        rect6.position(400, 230);
-        rect6.resize(100, 40);
-        rect6.attr({
-            body: {
-                fill: '#F39C12',
-                rx: 20,
-                ry: 20,
-                strokeDasharray: '1,1'
-            },
-            label: {
-                text: 'World!',
-                fill: 'gray',
-                fontSize: 18,
-                fontWeight: 'bold',
-                fontVariant: 'small-caps',
-                textShadow: '1px 1px 1px black'
-            }
-        });
-        rect6.addTo(graph);
-
-        var link4 = new joint.shapes.standard.Link();
-        link4.source(rect5);
-        link4.target(rect6);
-        link4.attr({
-            line: {
-                stroke: '#3498DB',
-                strokeWidth: 3,
-                strokeDasharray: '5 5',
-                strokeDashoffset: 7.5,
-                sourceMarker: {
-                    'type': 'path',
-                    'stroke': 'none',
-                    'fill': '#3498DB',
-                    'd': 'M 20 -10 0 0 20 10 Z \
-                        M 40 -10 20 0 40 10 Z'
-                },
-                targetMarker: {
-                    'type': 'path',
-                    'stroke': 'none',
-                    'fill': '#3498DB',
-                    'd': 'M 7.5 -10 2.5 -10 2.5 10 7.5 10 Z \
-                        M 17.5 -10 12.5 -10 12.5 10 17.5 10 Z \
-                        M 40 -10 20 0 40 10 Z'
-                }
-            }
-        });
-        link4.addTo(graph);
-
-    </script>
-}
+          
+            window.addEventListener('DOMContentLoaded', init);
+        </script>
+    }

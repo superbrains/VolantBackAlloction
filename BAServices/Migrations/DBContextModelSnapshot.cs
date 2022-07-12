@@ -19,6 +19,84 @@ namespace BAServices.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("BAServices.Models.LACTUnitConfiguration", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("FacilitiesID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MetersID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PipelinesID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("FacilitiesID");
+
+                    b.HasIndex("MetersID");
+
+                    b.HasIndex("PipelinesID");
+
+                    b.ToTable("LACTUnitConfiguration");
+                });
+
+            modelBuilder.Entity("BAServices.Models.Links", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("TenantID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("from")
+                        .HasColumnType("int");
+
+                    b.Property<int>("to")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Links");
+                });
+
+            modelBuilder.Entity("BAServices.Models.Nodes", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("TenantID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("category")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("key")
+                        .HasColumnType("int");
+
+                    b.Property<string>("location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("size")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Nodes");
+                });
+
             modelBuilder.Entity("BAServices.Models.Operators", b =>
                 {
                     b.Property<int>("ID")
@@ -53,6 +131,29 @@ namespace BAServices.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Operators");
+                });
+
+            modelBuilder.Entity("BAServices.Models.POS", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("POSName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PipelinesID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("PipelinesID");
+
+                    b.ToTable("POS");
                 });
 
             modelBuilder.Entity("BAServices.Models.Tenants", b =>
@@ -281,6 +382,48 @@ namespace BAServices.Migrations
                     b.ToTable("Field");
                 });
 
+            modelBuilder.Entity("VolantBackAlloction.Models.Meters", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<double>("MeterFactor")
+                        .HasColumnType("float");
+
+                    b.Property<string>("MeterType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Meters");
+                });
+
+            modelBuilder.Entity("VolantBackAlloction.Models.Pipelines", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("PipelineName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TenantID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Pipelines");
+                });
+
             modelBuilder.Entity("VolantBackAlloction.Models.Well", b =>
                 {
                     b.Property<int>("ID")
@@ -463,6 +606,28 @@ namespace BAServices.Migrations
                     b.HasIndex("TenantsID");
 
                     b.ToTable("Well");
+                });
+
+            modelBuilder.Entity("BAServices.Models.LACTUnitConfiguration", b =>
+                {
+                    b.HasOne("VolantBackAlloction.Models.Facilities", "Facilities")
+                        .WithMany()
+                        .HasForeignKey("FacilitiesID");
+
+                    b.HasOne("VolantBackAlloction.Models.Meters", "Meters")
+                        .WithMany()
+                        .HasForeignKey("MetersID");
+
+                    b.HasOne("VolantBackAlloction.Models.Pipelines", "Pipelines")
+                        .WithMany()
+                        .HasForeignKey("PipelinesID");
+                });
+
+            modelBuilder.Entity("BAServices.Models.POS", b =>
+                {
+                    b.HasOne("VolantBackAlloction.Models.Pipelines", "Pipelines")
+                        .WithMany()
+                        .HasForeignKey("PipelinesID");
                 });
 
             modelBuilder.Entity("VolantBackAlloction.Models.Facilities", b =>

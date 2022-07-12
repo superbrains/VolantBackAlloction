@@ -19,5 +19,12 @@ namespace VolantBackAlloction.Models
         public DbSet<Facilities> Facilities { get; set; }
         public DbSet<Field> Field { get; set; }
         public DbSet<Operators> Operators { get; set; }
+        public DbSet<Pipelines> Pipelines { get; set; }
+        public DbSet<POS> POS { get; set; }
+        public DbSet<Meters> Meters { get; set; }
+
+        public DbSet<Links> Links { get; set; }
+        public DbSet<Nodes> Nodes { get; set; }
+        public DbSet<LACTUnitConfiguration> LACTUnitConfiguration { get; set; }
     }
 }
